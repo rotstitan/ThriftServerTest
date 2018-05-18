@@ -26,9 +26,7 @@ public class ServerConfig {
     public static final int SelectorThread = 1;    
     public static final int MaxCallQueueSize = 4;    
     public static final long KeepAliveTime = 5000;
-
-
-
+    public static final int SocketTimeOut = 3000; //6s   
 
 
     

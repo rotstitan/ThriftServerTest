@@ -79,11 +79,11 @@ public class MyServer {
             TServerTransport serverTransport;
             switch(ServerConfig.BlockingType){
                 case TNonblockingSocket:
-                    serverTransport = new TNonblockingServerSocket(ServerConfig.HostPort);
+                    serverTransport = new TNonblockingServerSocket(ServerConfig.HostPort, ServerConfig.SocketTimeOut);
                     break;
                 case TSocket:
                 default:
-                    serverTransport = new TServerSocket(ServerConfig.HostPort, 3000);
+                    serverTransport = new TServerSocket(ServerConfig.HostPort, ServerConfig.SocketTimeOut);
                     break;
             }
             TThreadPoolServer.Args args = new TThreadPoolServer.Args(serverTransport);
@@ -131,11 +131,11 @@ public class MyServer {
             TServerTransport serverTransport;
             switch(ServerConfig.BlockingType){
                 case TNonblockingSocket:
-                    serverTransport = new TNonblockingServerSocket(ServerConfig.HostPort);
+                    serverTransport = new TNonblockingServerSocket(ServerConfig.HostPort, ServerConfig.SocketTimeOut);
                     break;
                 case TSocket:
                 default:
-                    serverTransport = new TServerSocket(ServerConfig.HostPort);
+                    serverTransport = new TServerSocket(ServerConfig.HostPort, ServerConfig.SocketTimeOut);
                     break;
             }
             
@@ -176,7 +176,7 @@ public class MyServer {
     }
     public static TServer threadedSelectorServer(ThriftTestService.Processor<ThriftTestHander> processor) throws Exception {
 
-        TThreadedSelectorServer.Args args = new TThreadedSelectorServer.Args(new TNonblockingServerSocket(ServerConfig.HostPort,3000));
+        TThreadedSelectorServer.Args args = new TThreadedSelectorServer.Args(new TNonblockingServerSocket(ServerConfig.HostPort, ServerConfig.SocketTimeOut));
         args.workerThreads(ServerConfig.WorkerThread);        
         args.selectorThreads(ServerConfig.SelectorThread);
         //args.acceptPolicy(TThreadedSelectorServer.Args.AcceptPolicy.FAIR_ACCEPT);
@@ -224,7 +224,7 @@ public class MyServer {
     }
     public static TServer tHsHaServer(ThriftTestService.Processor<ThriftTestHander> processor) throws Exception {
         
-        THsHaServer.Args args = new THsHaServer.Args(new TNonblockingServerSocket(ServerConfig.HostPort));
+        THsHaServer.Args args = new THsHaServer.Args(new TNonblockingServerSocket(ServerConfig.HostPort, ServerConfig.SocketTimeOut));
         
         switch (ServerConfig.TransportType) {
             case TFramedTransport:
@@ -261,7 +261,7 @@ public class MyServer {
     }
     public static TServer nonblockingServer(ThriftTestService.Processor<ThriftTestHander> processor) throws Exception {
         
-        TNonblockingServer.Args args = new TNonblockingServer.Args(new TNonblockingServerSocket(ServerConfig.HostPort));
+        TNonblockingServer.Args args = new TNonblockingServer.Args(new TNonblockingServerSocket(ServerConfig.HostPort, ServerConfig.SocketTimeOut));
         
         switch (ServerConfig.TransportType) {
             case TFramedTransport:

@@ -52,7 +52,7 @@ public class MThreading extends Thread
             TTransport socket;
             switch(ClientConfigs.BlockingType){
                 case TSocket:
-                    socket = new TSocket(ClientConfigs.HostIP, ClientConfigs.HostPort, 6000);
+                    socket = new TSocket(ClientConfigs.HostIP, ClientConfigs.HostPort, ClientConfigs.SocketTimeOut);
                     break;
                 case TNonblockingSocket:
                 default:
