@@ -51,7 +51,7 @@ public class AsyncClient {
             data.setB2(10);
             data.setB3(10l);
             data.setB4(4d);
-            data.setB5("This is Test Data make by RotS"); //ClientConfig.BigData
+            data.setB5("This is Test Data make by RotS"); 
             client.sendTest(data, new TestMethodCallback());
 //            for(int i = 0;i < 1000000;i++){
 //                 client.sendTest(data, new TestMethodCallback());
