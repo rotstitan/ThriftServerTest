@@ -182,37 +182,37 @@ public class MyServer {
         //args.acceptPolicy(TThreadedSelectorServer.Args.AcceptPolicy.FAIR_ACCEPT);
         
 
-        switch(ServerConfig.TransportType){
-            case TFramedTransport: 
-                args.transportFactory(new TFramedTransport.Factory());
-                break;
-            case TMemoryTransport:
-            case TZlibTransport:      
-            case TFileTransport: 
-            case TSocket:
-            default:
-                 args.transportFactory(new TTransportFactory());
-                break;
-        }
-        
-        switch(ServerConfig.ProtocolType){
-            case TBinaryProtocol:
-                 args.protocolFactory(new TBinaryProtocol.Factory()); 
-                 break;
-
-            case TJSONProtocol:
-                args.protocolFactory(new TJSONProtocol.Factory());
-                break;
-            case TSimpleJSONProtocol:
-                args.protocolFactory(new TSimpleJSONProtocol.Factory());
-                break;
-            case TCompactProtocol:
-            case TDebugProtocol:
-            case TDenseProtocol:
-            default:
-                args.protocolFactory(new TCompactProtocol.Factory()); 
-                break;
-        }
+//        switch(ServerConfig.TransportType){
+//            case TFramedTransport: 
+//                args.transportFactory(new TFramedTransport.Factory());
+//                break;
+//            case TMemoryTransport:
+//            case TZlibTransport:      
+//            case TFileTransport: 
+//            case TSocket:
+//            default:
+//                 args.transportFactory(new TTransportFactory());
+//                break;
+//        }
+//        
+//        switch(ServerConfig.ProtocolType){
+//            case TBinaryProtocol:
+//                 args.protocolFactory(new TBinaryProtocol.Factory()); 
+//                 break;
+//
+//            case TJSONProtocol:
+//                args.protocolFactory(new TJSONProtocol.Factory());
+//                break;
+//            case TSimpleJSONProtocol:
+//                args.protocolFactory(new TSimpleJSONProtocol.Factory());
+//                break;
+//            case TCompactProtocol:
+//            case TDebugProtocol:
+//            case TDenseProtocol:
+//            default:
+//                args.protocolFactory(new TCompactProtocol.Factory()); 
+//                break;
+//        }
         
 //        SynchronousQueue<Runnable> executorQueue = // NOSONAR
 //        new SynchronousQueue<Runnable>();

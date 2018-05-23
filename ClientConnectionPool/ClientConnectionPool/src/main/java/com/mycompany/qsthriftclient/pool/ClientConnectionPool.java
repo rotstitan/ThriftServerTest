@@ -39,7 +39,7 @@ public class ClientConnectionPool <T extends TServiceClient> {
     private Timer connectTimer = new Timer();
     private boolean isTryingToConnect = false;
     private Class<? extends TServiceClient> clientClass;
-    private int wolkingConnection = 0;
+    private int wolkingConnectionCount = 0;
     public BlockingQueue<MyConnection<T>> getConnectionPool() {
         return freeConnections;
     }
@@ -49,13 +49,13 @@ public class ClientConnectionPool <T extends TServiceClient> {
     }
     
     public synchronized int getTotalConnection() {
-        return wolkingConnection + freeConnections.size();
+        return wolkingConnectionCount + freeConnections.size();
     }
-    public synchronized int getWolkingConnection(){
-        return wolkingConnection;
+    public synchronized int getWolkingConnectionCount(){
+        return wolkingConnectionCount;
     }
-    public synchronized void addWolkingConnection(int add){
-        wolkingConnection += add;
+    public synchronized void addWolkingConnectionCount(int add){
+        wolkingConnectionCount += add;
     }
    
     public ClientConnectionPool(Class<? extends TServiceClient> clientClass){
@@ -93,7 +93,7 @@ public class ClientConnectionPool <T extends TServiceClient> {
     public void InitPool(){
         try{
             freeConnections = new ArrayBlockingQueue<>(ClientConfigs.MaxConnection);
-            for(int i = getWolkingConnection(); i < ClientConfigs.InitConnection;i++){
+            for(int i = getWolkingConnectionCount(); i < ClientConfigs.InitConnection;i++){
                 MyConnection<T> connection = getNewConnection();
                 freeConnections.add(connection);
             }
@@ -111,6 +111,20 @@ public class ClientConnectionPool <T extends TServiceClient> {
                                 ,clientClass);
         return connection;
     }
+    public void addNewConnectionInOtherThread() {
+        class NewConnectionThread extends Thread {
+            @Override
+            public void run() {
+                try {
+                    freeConnections.add(getNewConnection());
+                    System.out.println("Create new Connection In Other Thread: Success ("+ freeConnections.size()  +")");
+                } catch (Exception ex) {
+                    System.out.println("Create new Connection In Other Thread: Fail ("+ freeConnections.size()  +")");
+                }
+            }
+        }
+    }
+    
     public void ScheduleAutoReconnect(){
         if(!isTryingToConnect){
             TimerTask task = new TimerTask() { 
@@ -160,13 +174,17 @@ public class ClientConnectionPool <T extends TServiceClient> {
         if(connection == null){
             System.out.println("Return null connection ("+ freeConnections.size()  +")");
         }else{
-            addWolkingConnection(1);
+            addWolkingConnectionCount(1);
         }
+        if(state == PoolState.CONNECTING
+                && getTotalConnection() < ClientConfigs.MaxConnection 
+                && freeConnections.size() < ClientConfigs.MinFreeConnection)
+            addNewConnectionInOtherThread();
         return connection;
     }
     public synchronized void returnConnectionToPool(MyConnection<T> connection) throws IOException{
         if(connection != null){
-            addWolkingConnection(-1);
+            addWolkingConnectionCount(-1);
             if(!connection.isClosed()) {
                 if(freeConnections.size() < ClientConfigs.MaxConnection){
                     freeConnections.add(connection);
@@ -184,7 +202,7 @@ public class ClientConnectionPool <T extends TServiceClient> {
     }
     public synchronized void handerConnectException(MyConnection<T> connection) throws IOException{
         if(connection != null){
-            addWolkingConnection(-1);
+            addWolkingConnectionCount(-1);
         }
         state = PoolState.FAIL_CONNECT;
         ScheduleAutoReconnect();

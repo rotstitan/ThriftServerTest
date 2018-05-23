@@ -15,7 +15,8 @@ public class ClientConfigs {
     
     
     // Connection Pool Config
-    public static int InitConnection = 5;   
+    public static int InitConnection = 5;    
+    public static int MinFreeConnection = 5;
     public static int MaxConnection = 10;       
     public static int SocketTimeOut = 3000;      
     public static int ConnetTimeOut = 5000;
