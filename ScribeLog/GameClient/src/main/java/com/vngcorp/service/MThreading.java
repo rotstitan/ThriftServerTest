@@ -3,10 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.mycompany.qsthriftclient;
+package com.vngcorp.service;
 
-import com.thrifttest.thrift.TestData;
-import com.thrifttest.thrift.ThriftTestService;
+import com.vngcorp.config.ClientConfigs;
+import com.vngcorp.log.LogActionConstant;
+import com.vngcorp.log.LogConstant;
+import com.vngcorp.log.thrift.LogEntry;
+import com.vngcorp.log.thrift.MainService;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.thrift.TException;
@@ -38,6 +42,7 @@ public class MThreading extends Thread
     public int tSended = 0; 
     public ThreadIndex iDone = new ThreadIndex();
     public int tFailed = 0;
+    public static Random rand = new Random();
     //CharacterService.Client client;
     public MThreading() {
         //this.client = client;
@@ -93,23 +98,16 @@ public class MThreading extends Thread
             } 
              
             
-            ThriftTestService.Client client = new ThriftTestService.Client(protocol);
+            MainService.Client client = new MainService.Client(protocol);
             
 
                 for (i = 0;i < ClientConfigs.TotalDataPerProcess;i++){
                 try{
-                    TestData data = new TestData();
-                    data.setB1(true);                
-                    data.setB2(10);
-                    data.setB3(System.currentTimeMillis());
-                    data.setB4(4d);
-                    data.setB5("This is Test Data make by RotS"); 
-                    //ClientConfigs.BigData                    
-                    //This is Test Data make by RotS
                     GameClient.addSend(1);
                     tSended++;
                     //client.sendTest(data);
-                    ReceivedData(client.sendTest(data), iDone);
+                    ReceivedData(client.sendLog(getTestLogEntry()), iDone);
+                    Thread.sleep(500 + rand.nextInt(2500));
                 }catch(Exception te){
                     //System.out.println ("Socket Error: " + te);
                     tFailed++;
@@ -141,9 +139,21 @@ public class MThreading extends Thread
                 return; 
         }
     }
-    public static void ReceivedData(TestData recv, ThreadIndex iDone){
+    public static LogEntry getTestLogEntry(){
+        LogEntry entry = new LogEntry();
+        int gid = rand.nextInt(3);
+        entry.gameId = ClientConfigs.GameID[gid];
+        
+        int serviceid = rand.nextInt(3);
+        if(serviceid == 0) entry.serviceId = LogConstant.USER_SERVICE;
+        else if(serviceid == 1) entry.serviceId = LogConstant.PAYMENT_SERVICE;
+        else entry.serviceId = LogConstant.ACTION_SERVICE;
+        
+        entry.message = "rots|Data 77" + rand.nextInt(100);
+        return entry;
+    }
+    public static void ReceivedData(int code, ThreadIndex iDone){
         //GameClient.maxSpeed = (int)recv.getB3();
-        GameClient.addTotalExTime(System.currentTimeMillis() - recv.getB3());
         iDone.Variable++;
         GameClient.addRecv(1);
     }
@@ -159,10 +169,6 @@ public class MThreading extends Thread
         System.out.println ("TotalTestTime: " + testTime + "s");
         double avgSpeed = Math.round(100000d * GameClient.received / delta)/100;
         System.out.println ("AVGSpeed: " + avgSpeed + "req/s");
-        if(GameClient.received > 0){
-            long avgTime = GameClient.totalExecuteTime / GameClient.received;
-            System.out.println ("AVGTotalExecuteTime: " + avgTime+ " ms/recv");
-        }
         
         if(!error){
             System.out.println ("SYSTEM EXIT BY ERROR!");
@@ -172,26 +178,6 @@ public class MThreading extends Thread
             System.out.println ("SYSTEM EXIT SUCCESS!");
         
     }
-    class TestMethodCallback
-            implements AsyncMethodCallback<ThriftTestService.AsyncClient.sendTest_call> {
- 
-        public void onComplete(ThriftTestService.AsyncClient.sendTest_call sendTest_call) {
-            try {
-                TestData result = sendTest_call.getResult();
-                GameClient.maxSpeed = (int)result.getB3();
-                iDone.Variable++;
-                GameClient.addRecv(1);
-            } catch (TException e) {
-                e.printStackTrace();
-            }
-        }
-        public void onError(Exception e) {
-            tFailed++;
-            GameClient.addFail(1);
-        }
- 
-    }
-    
 }
 
  

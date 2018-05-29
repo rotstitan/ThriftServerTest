@@ -72,9 +72,9 @@ public class AsyncClient {
     
     public class TestMethodCallback
     implements AsyncMethodCallback<ThriftTestService.AsyncClient.sendTest_call> {
- 
+     @Override
     public void onError(Exception e) {
-        // error management
+        System.out.println("Fail:" + e);
     }
     @Override
     public void onComplete(ThriftTestService.AsyncClient.sendTest_call t) {
@@ -90,7 +90,7 @@ public class AsyncClient {
             client.sendTest(data, new TestMethodCallback());
             // elaboration of the result
         } catch (TException e) {
-            // Handle exception
+            
         }
     }
  
