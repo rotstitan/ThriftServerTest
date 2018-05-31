@@ -73,7 +73,7 @@ public class GameClient {
         }catch (Exception e) {
             System.out.println("FatalError: ");
             e.printStackTrace();
-            MThreading.ExitWithError(false);
+            MThreading.getTestResult(false);
         }
     }
 }

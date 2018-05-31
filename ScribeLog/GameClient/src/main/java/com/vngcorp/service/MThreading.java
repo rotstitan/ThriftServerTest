@@ -43,6 +43,13 @@ public class MThreading extends Thread
     public ThreadIndex iDone = new ThreadIndex();
     public int tFailed = 0;
     public static Random rand = new Random();
+    private static int TestPacketIndex = 0;
+    public static synchronized int getTestPacketIndex(){
+        return TestPacketIndex;
+    } 
+    public static synchronized void addTestPacketIndex(int add){
+        TestPacketIndex += add;
+    } 
     //CharacterService.Client client;
     public MThreading() {
         //this.client = client;
@@ -107,7 +114,7 @@ public class MThreading extends Thread
                     tSended++;
                     //client.sendTest(data);
                     ReceivedData(client.sendLog(getTestLogEntry()), iDone);
-                    Thread.sleep(500 + rand.nextInt(2500));
+                    //Thread.sleep(500 + rand.nextInt(2500));
                 }catch(Exception te){
                     //System.out.println ("Socket Error: " + te);
                     tFailed++;
@@ -121,43 +128,33 @@ public class MThreading extends Thread
         catch(Exception e){
             tFailed++;
             GameClient.addThreadFail(1);
-            //System.out.println("FatalError From Thread: " + e);
-            //ExitWithError(false);
         }
-         
-//        while(!(iDone.Variable + tFailed >= ClientConfigs.TotalDataPerProcess) ){
-//            try {
-//                Thread.sleep(100);
-//            } catch (InterruptedException ex) {
-//                Logger.getLogger(MThreading.class.getName()).log(Level.SEVERE, null, ex);
-//            }
-//        }
         GameClient.addThread(-1);     
         if(GameClient.received + GameClient.failed >= (ClientConfigs.TotalProcess * ClientConfigs.TotalDataPerProcess)
            || GameClient.thread <= 0){
-                ExitWithError(true);
+                getTestResult(true);
                 return; 
         }
     }
-    public static LogEntry getTestLogEntry(){
+    public LogEntry getTestLogEntry(){
         LogEntry entry = new LogEntry();
-        int gid = rand.nextInt(3);
+        int gid = 0;        
+        //int gid = rand.nextInt(3);
         entry.gameId = ClientConfigs.GameID[gid];
         
-        int serviceid = rand.nextInt(3);
+        int serviceid = 0;
         if(serviceid == 0) entry.serviceId = LogConstant.USER_SERVICE;
         else if(serviceid == 1) entry.serviceId = LogConstant.PAYMENT_SERVICE;
         else entry.serviceId = LogConstant.ACTION_SERVICE;
-        
-        entry.message = "rots|Data 77" + rand.nextInt(100);
+        addTestPacketIndex(1);
+        entry.message = System.currentTimeMillis() +  "|rots|Data " + getTestPacketIndex();
         return entry;
     }
     public static void ReceivedData(int code, ThreadIndex iDone){
-        //GameClient.maxSpeed = (int)recv.getB3();
         iDone.Variable++;
         GameClient.addRecv(1);
     }
-    public static void ExitWithError(boolean error){
+    public static void getTestResult(boolean error){
         System.out.println ("Final Result ------------------------- ");             
         System.out.println ("Total Disconect: " + GameClient.mainErr);                
         int percent = GameClient.received * 100 / (ClientConfigs.TotalProcess * ClientConfigs.TotalDataPerProcess);

@@ -43,7 +43,7 @@ public class CaculateTask extends TimerTask {
             WaitingCircle ++;
             if(WaitingCircle > ClientConfigs.ConnetTimeOut/1000){ // timeout = 20s
                 GameClient.addThread(-GameClient.thread);
-                MThreading.ExitWithError(true);
+                MThreading.getTestResult(true);
                 
             }
         }else{
