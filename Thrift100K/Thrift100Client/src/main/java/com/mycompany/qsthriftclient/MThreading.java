@@ -98,18 +98,7 @@ public class MThreading extends Thread
 
                 for (i = 0;i < ClientConfigs.TotalDataPerProcess;i++){
                 try{
-                    TestData data = new TestData();
-                    data.setB1(true);                
-                    data.setB2(10);
-                    data.setB3(System.currentTimeMillis());
-                    data.setB4(4d);
-                    data.setB5("This is Test Data make by RotS"); 
-                    //ClientConfigs.BigData                    
-                    //This is Test Data make by RotS
-                    GameClient.addSend(1);
-                    tSended++;
-                    //client.sendTest(data);
-                    ReceivedData(client.sendTest(data), iDone);
+                    client.ping();
                 }catch(Exception te){
                     //System.out.println ("Socket Error: " + te);
                     tFailed++;

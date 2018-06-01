@@ -83,7 +83,7 @@ public class MThreading extends Thread
                     System.out.println ("Socket Error: " + te);
                     tFailed++;
                     GameClient.addFail(1);
-                    GameClient.getClientPool().returnConnectionToPool(connection);
+                    GameClient.getClientPool().handerConnectException(connection);
                     //System.exit(1);
                 }
                 Thread.sleep(200);

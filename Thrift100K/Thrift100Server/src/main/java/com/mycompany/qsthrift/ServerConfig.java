@@ -20,7 +20,7 @@ public class ServerConfig {
     public static final Blocking BlockingType = Blocking.TSocket;
     public static final Transport TransportType = Transport.TFramedTransport;
     public static final Protocol ProtocolType = Protocol.TBinaryProtocol;
-    public static final Server ServerType = Server.TThreadedSelectorServer;
+    public static final Server ServerType = Server.TThreadPoolServer;
     
     public static final int WorkerThread = 1;    
     public static final int SelectorThread = 1;    
