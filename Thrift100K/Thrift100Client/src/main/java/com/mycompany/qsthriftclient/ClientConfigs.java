@@ -13,8 +13,8 @@ public class ClientConfigs {
     public static final String HostIP = "localhost";    
     public static final int HostPort = 7777;
     
-    public static int TotalProcess = 500;
-    public static int TotalDataPerProcess = 1000;
+    public static int TotalProcess = 10;
+    public static int TotalDataPerProcess = 1000000;
     public static int SocketTimeOut = 6000; //6s        
     public static int ConnetTimeOut = 60 * 1000; //60s    
     
@@ -23,7 +23,7 @@ public class ClientConfigs {
     public static final Blocking BlockingType = Blocking.TSocket;
     public static final Transport TransportType = Transport.TFramedTransport;
     public static final Protocol ProtocolType = Protocol.TBinaryProtocol;
-    public static final Server ServerType = Server.TThreadedSelectorServer;
+    public static final Server ServerType = Server.TThreadPoolServer;
     //public static boolean UseASyncClient = true;
     
     public enum Blocking {

@@ -15,6 +15,8 @@ import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TJSONProtocol;
 import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.transport.TFramedTransport;
+import org.apache.thrift.transport.TNonblockingSocket;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
@@ -44,15 +46,38 @@ public class MyConnection<T extends TServiceClient> implements Closeable {
         CreateConnection();
     }
 
-    public void CreateConnection() throws Exception {
-        transport = new TSocket(host, port, socketTimeOut);
-        transport.open();
+    public  T CreateConnection() throws Exception {
+        TTransport socket;
+        switch(ClientConfigs.BlockingType){
+            case TSocket:
+                socket = new TSocket(host, port, socketTimeOut);
+                break;
+            case TNonblockingSocket:
+            default:
+                socket = new TNonblockingSocket(host, port);
+                break;
+        }
+        switch(ClientConfigs.TransportType){
+
+            case TFramedTransport: 
+                transport = new TFramedTransport(socket);
+                break;
+            case TMemoryTransport:
+            case TZlibTransport:      
+            case TFileTransport: 
+            case TSocket:
+            default:
+                transport = socket;
+                break;
+        } 
+        if(ClientConfigs.BlockingType == ClientConfigs.Blocking.TSocket) transport.open();
         TProtocol protocol = CreateProtocol(transport);
         Constructor<? extends TServiceClient> clientConstructor = clientClass.getConstructor(TProtocol.class);
         client = (T) clientConstructor.newInstance(protocol);
+        return client;
     }
     private TProtocol CreateProtocol(TTransport transport) {
-        switch(ClientConfigs.ProtocolType){
+        switch(protocolType){
             case TBinaryProtocol:
                 return new TBinaryProtocol(transport); 
             case TJSONProtocol:

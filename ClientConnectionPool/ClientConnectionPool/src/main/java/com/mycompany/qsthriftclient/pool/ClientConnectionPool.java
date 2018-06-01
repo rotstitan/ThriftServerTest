@@ -36,8 +36,14 @@ public class ClientConnectionPool <T extends TServiceClient> {
         FAIL_CONNECT,
     }
     private PoolState state = PoolState.NOT_CONNECT;
-    private Timer connectTimer = new Timer();
+    private Timer connectTimer = null;
     private boolean isTryingToConnect = false;
+    public synchronized boolean getIsTryingToConnect(){
+        return isTryingToConnect;
+    }
+    public synchronized void setIsTryingToConnect(boolean value){
+        isTryingToConnect = value;
+    }
     private Class<? extends TServiceClient> clientClass;
     private int wolkingConnectionCount = 0;
     public BlockingQueue<MyConnection<T>> getConnectionPool() {
@@ -62,8 +68,7 @@ public class ClientConnectionPool <T extends TServiceClient> {
         this.clientClass = clientClass;
         try{
             if(!ping()){
-                state = PoolState.FAIL_CONNECT;
-                ScheduleAutoReconnect();
+                TryingToConnect();
                 System.out.println("FAIL TO ESTABLISH CONNECTION!");
             }else{
                 InitPool();
@@ -126,26 +131,27 @@ public class ClientConnectionPool <T extends TServiceClient> {
     }
     
     public void ScheduleAutoReconnect(){
-        if(!isTryingToConnect){
+        if(!getIsTryingToConnect()){
+            connectTimer = new Timer();
             TimerTask task = new TimerTask() { 
                 @Override
                 public void run() {
                     boolean connecting = ping();
                     if(connecting){
-                        isTryingToConnect = false;
+                        setIsTryingToConnect(false);
                         state = PoolState.CONNECTING;
                         connectTimer.cancel();
                         InitPool();
                     }else{
-                        //System.out.println("Trying to connect!");
+                        System.out.println("Trying to connect!");
                     }
                 }
             };
             connectTimer.scheduleAtFixedRate(task, 0, ClientConfigs.TryingToConnectInteval);
+            setIsTryingToConnect(true);
         }
-        isTryingToConnect = true;
     }
-    public synchronized MyConnection<T> getConnection() throws Exception{
+    public synchronized MyConnection<T> getConnection() {
         if(state != PoolState.CONNECTING){
             return null;
         }
@@ -159,8 +165,7 @@ public class ClientConnectionPool <T extends TServiceClient> {
                     connection = getNewConnection();
                     System.out.println("Create new Connection: Success ("+ freeConnections.size()  +")");
                 }catch(Exception e){
-                    state = PoolState.FAIL_CONNECT;
-                    ScheduleAutoReconnect();
+                    TryingToConnect();
                     System.out.println("Create new Connection: Fail ("+ freeConnections.size()  +")");
                     return null;
                 }
@@ -183,29 +188,35 @@ public class ClientConnectionPool <T extends TServiceClient> {
         return connection;
     }
     public synchronized void returnConnectionToPool(MyConnection<T> connection) throws IOException{
-        if(connection != null){
-            addWolkingConnectionCount(-1);
-            if(!connection.isClosed()) {
-                if(freeConnections.size() < ClientConfigs.MaxConnection){
-                    freeConnections.add(connection);
-                    System.out.println("Return connection to Pool ("+ freeConnections.size()  +")");
-                }else{
-                    System.out.println("Pool Full, close connection ("+ freeConnections.size()  +")");
-                    try{
-                       connection.close();
-                    }catch (Exception e){
-                        e.printStackTrace();
+        try{
+            if(connection != null){
+                addWolkingConnectionCount(-1);
+                if(!connection.isClosed()) {
+                    if(freeConnections.size() < ClientConfigs.MaxConnection){
+                        freeConnections.add(connection);
+                        System.out.println("Return connection to Pool ("+ freeConnections.size()  +")");
+                    }else{
+                        System.out.println("Pool Full, close connection ("+ freeConnections.size()  +")");
+                        try{
+                           connection.close();
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
                     }
                 }
             }
+        }catch(Exception e){
         }
+   
     }
     public synchronized void handerConnectException(MyConnection<T> connection) throws IOException{
         if(connection != null){
             addWolkingConnectionCount(-1);
         }
+        TryingToConnect();
+    }
+    public void TryingToConnect(){
         state = PoolState.FAIL_CONNECT;
         ScheduleAutoReconnect();
     }
-
 }

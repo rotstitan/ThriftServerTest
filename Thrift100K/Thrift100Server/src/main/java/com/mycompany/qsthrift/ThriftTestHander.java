@@ -40,4 +40,8 @@ public class ThriftTestHander implements ThriftTestService.Iface {
         return data;
     }
 
+    @Override
+    public void ping(){
+        CaculateTask.index ++;
+    }
 }
