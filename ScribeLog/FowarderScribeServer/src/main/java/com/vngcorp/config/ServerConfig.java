@@ -32,7 +32,7 @@ public class ServerConfig {
     public static final String QueueData = "backup/QueueData.log";    
     public static final String Log4jConfigFile = "configs/log4j.properties";
     //Queue Config
-    public static final int MaxDataQueue = 1000000;    
+    public static final int MaxDataBackupQueue = 1000000;    
     public static final int QueueCheckInterval = 1000;
  
     

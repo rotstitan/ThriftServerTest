@@ -15,7 +15,7 @@ import java.util.concurrent.BlockingQueue;
  * @author rots
  */
 public class BackupQueue {
-    private static BlockingQueue<LogEntry> logEntries = new ArrayBlockingQueue<>(ServerConfig.MaxDataQueue);
+    private static BlockingQueue<LogEntry> logEntries = new ArrayBlockingQueue<>(ServerConfig.MaxDataBackupQueue);
     public static BlockingQueue<LogEntry> getQueue() {
         return logEntries;
     }
