@@ -4,3 +4,7 @@
 /ClientConnectionPool/ClientConnectionPool/target/
 /ThriftS100/100Server/target/
 /100KREQSServer/target/
+/TestSerDeSer/target/
+/AsyncClientTest/ThriftServerOption/target/
+/ThriftSettingOption/ThriftServerOption/target/
+/ThriftSettingOption/ThriftSettingOption/target/
